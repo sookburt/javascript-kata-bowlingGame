@@ -4,64 +4,79 @@ const bowlingScores = (scoreBoard) => {
   let total = 0;
   let frameCount = 0;
 
-  // using a stack-like mechanism so I can shift and unshift to get the next values in the spare or strike condition.
+  // using a stack-like mechanism so I can shift and unshift to peek at the next values in  spare or strike conditions.
   while (scoreBoard.length > 0) {
 
     frameCount++
-    let current = scoreBoard.shift().trim();
+    let currentFrame = scoreBoard.shift().trim();
 
     // SPARE
-    if (frameCount < 11 && current[1] === "/") {
-      total += getScoreValue("/");
-      if (frameCount === 10){
-        total += getScoreValue(current[2]);
-      } 
-      else {
-        const sparePair = scoreBoard.shift();
-        total += getScoreValue(sparePair[0]); // next roll
-        scoreBoard.unshift(sparePair);
-      }
-    }
-    // STRIKE
-    else if (frameCount < 11 && current[0] === "X") {
-      total += getScoreValue(current);
-      // get next frame
-      const strikePair = scoreBoard.shift();
+    if (frameCount < 11 && isSpare(currentFrame)) {
 
-      // check if next is also a strike
-      if (strikePair[0] === "X") {
-        total += getScoreValue(strikePair[0]);
-        // get next frame
-        const strikePairInner = scoreBoard.shift();
-        // also a strike
-        if (strikePairInner[0] === "X") {
-          total += getScoreValue(strikePairInner[0]);         
-        }
-        else {
-          total += getScoreValue(strikePair[0]);
-        }
-        scoreBoard.unshift(strikePairInner);
-      }
-      // it's spare
-      else if (strikePair[1] === "/")
-      {
-        total += getScoreValue(strikePair[1]);
-      }
-      else {
-        total += getScoreValue(strikePair[0]); // next two rolls
-        total += getScoreValue(strikePair[1]);
-      }
-      scoreBoard.unshift(strikePair);
+      total += getScoreValue("/");
+      total += (isEndGame(frameCount) ? getScoreValue(currentFrame[2]) : handleSpare(scoreBoard));
     }
+
+    // STRIKE 
+    else if (frameCount < 11 && isStrike(currentFrame)) {
+
+      total += getScoreValue(currentFrame);
+      let maxStrikeCount = 2;
+      total += handleStrike(maxStrikeCount, scoreBoard);
+    } 
+    // PLAIN FRAME
     else if (frameCount < 11) {
-      total += getScoreValue(current[0]); 
-      total += getScoreValue(current[1]);
-    }
-    else {
-      //?
+
+      total += handleNumberPair(currentFrame);
     }
   }
   
+  return total;
+} 
+
+const isSpare = (thisFrame) => thisFrame.includes("/"); 
+
+const isStrike = (thisFrame) => thisFrame === "X"; 
+
+const isEndGame = (frameCount) => frameCount === 10;
+
+const handleNumberPair = (frame) => {
+  let total = getScoreValue(frame[0]);
+  total += getScoreValue(frame[1]);
+  return total;
+}
+
+const handleSpare = (scoreBoard) => {
+    let total = 0;
+    const pair = scoreBoard.shift();
+    if(pair) {
+      total = getScoreValue(pair[0]);
+      scoreBoard.unshift(pair);
+    }
+  return total;
+}
+
+const handleStrike = (strikeCount, scoreBoard) => {
+
+  let total = 0;
+  const nextFrame = scoreBoard.shift();
+  strikeCount--;
+  if (isStrike(nextFrame)) { 
+
+    total += getScoreValue(nextFrame);
+    if ( strikeCount > 0 ) {
+      total += handleStrike(strikeCount, scoreBoard); // recursive but only twice to allow for end game
+    }
+  }
+  else if (isSpare(nextFrame)) {
+
+    total += strikeCount === 1? getScoreValue("/") : getScoreValue(nextFrame[0]);
+  }
+  else {
+
+    total += handleNumberPair(nextFrame);
+  }
+  scoreBoard.unshift(nextFrame);
   return total;
 }
 

@@ -45,14 +45,13 @@ describe("bowlingScores", () => {
     expect(bowlingScores(['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'])).toBe(300);
   });
 
-  // TODO: work out why this fails.
-  xtest("pass in 11 frames of strikes and a number ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6'] expect sum of 296", () => {
+
+  test("pass in 11 frames of strikes and a number ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6'] expect sum of 296", () => {
     expect(bowlingScores(['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6'])).toBe(296);
   });
 
-  test("pass in 10 frames of strikes and a spare ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6/'] expect sum of 290", () => {
-    expect(bowlingScores(['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6/'])).toBe(290);
+  test("pass in 10 frames of strikes and a spare ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6/'] expect sum of 286", () => {
+    expect(bowlingScores(['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '6/'])).toBe(286); 
   });
-
-
+  
 });
